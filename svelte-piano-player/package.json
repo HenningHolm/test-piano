@@ -1,0 +1,28 @@
+{
+  "name": "svelte-piano-player",
+  "version": "1.0.0",
+  "description": "A MIDI piano player built with Svelte.",
+  "main": "src/app.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview"
+  },
+  "keywords": [
+    "svelte",
+    "piano",
+    "midi",
+    "audio"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "svelte": "^3.44.0",
+    "tone": "^14.8.37",
+    "d3": "^7.6.1"
+  },
+  "devDependencies": {
+    "vite": "^4.0.0",
+    "svelte-preprocess": "^4.10.0"
+  }
+}

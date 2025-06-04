@@ -17,8 +17,8 @@ import AboutAuthor from '@/components/AboutAuthor.vue';
   PanelMods
   PanelTempo
   PanelMidiInput
-  BuyMeACoffee
-  AboutAuthor
+  //- BuyMeACoffee
+  //- AboutAuthor
 
 </template>
 

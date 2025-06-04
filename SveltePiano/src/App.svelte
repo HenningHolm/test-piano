@@ -2,46 +2,79 @@
   import svelteLogo from './assets/svelte.svg'
   import viteLogo from '/vite.svg'
   import Counter from './lib/Counter.svelte'
+  import ThePanel from './components/ThePanel.svelte'
+  import TheKeyboard from './components/TheKeyboard.svelte'
+  import TheSheet from './components/TheSheet.svelte'
+  import { setContext } from 'svelte'
+
+  let engine = $state({})
+  let isEngineReady = $state(false)
+  
+  setContext('engine', {
+    get: () => engine,
+    set: (value) => { engine = value }
+  })
+
+  function assignApp(engineInstance) {
+    console.log('The engine is ready', engineInstance)
+    engine = engineInstance
+    isEngineReady = true
+    window.engine = engineInstance
+  }
 </script>
 
-<main>
-  <div>
-    <a href="https://vite.dev" target="_blank" rel="noreferrer">
-      <img src={viteLogo} class="logo" alt="Vite Logo" />
-    </a>
-    <a href="https://svelte.dev" target="_blank" rel="noreferrer">
-      <img src={svelteLogo} class="logo svelte" alt="Svelte Logo" />
-    </a>
-  </div>
-  <h1>Vite + Svelte</h1>
 
-  <div class="card">
-    <Counter />
+  <div id="game">
+    {#if isEngineReady}
+      <ThePanel />
+    {/if}
+    <TheSheet onEngineReady={assignApp} />
+    {#if isEngineReady}
+      <TheKeyboard />
+    {/if}
   </div>
 
-  <p>
-    Check out <a href="https://github.com/sveltejs/kit#readme" target="_blank" rel="noreferrer">SvelteKit</a>, the official Svelte app framework powered by Vite!
-  </p>
-
-  <p class="read-the-docs">
-    Click on the Vite and Svelte logos to learn more
-  </p>
-</main>
 
 <style>
-  .logo {
-    height: 6em;
-    padding: 1.5em;
-    will-change: filter;
-    transition: filter 300ms;
+  :global(body) {
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+  #game {
+    width: 100vw;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-rows: 15vh 70vh 15vh;
+    grid-template-areas:
+      "panel panel panel panel"
+      "sheet sheet sheet sheet"
+      "keyboard keyboard keyboard keyboard";
   }
-  .logo:hover {
-    filter: drop-shadow(0 0 2em #646cffaa);
+
+  :global(#panel) {
+    grid-area: panel;
   }
-  .logo.svelte:hover {
-    filter: drop-shadow(0 0 2em #ff3e00aa);
+
+  :global(#sheet) {
+    grid-area: sheet;
+    border: solid 1px black;
   }
-  .read-the-docs {
-    color: #888;
+
+  :global(#keyboard) {
+    grid-area: keyboard;
+  }
+
+  :global(*) {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+  }
+
+  @media screen and (max-height: 992px) {
+    :global(body) {
+      font-size: 2vh;
+    }
   }
 </style>

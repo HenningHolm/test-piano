@@ -1,100 +1,111 @@
-import { Container} from 'pixi.js';
-import { bpm2px } from '../utils/helpers';
-import Song from './Song';
-import EventFactory from './EventFactory';
-export default class Engine extends EventFactory {
+import { Container, Application } from 'pixi.js'
+import { bpm2px } from '../utils/helpers'
+import Song from './Song'
+import EventFactory from './EventFactory'
 
-  constructor(app) {
+export default class Engine extends EventFactory {
+  static instance: Engine | null = null
+  
+  pixi: Application
+  song: Song | null = null
+  tempo: number | null = null
+  leftHand: boolean = true
+  rightHand: boolean = true
+  mode: string = 'playAlong'
+  keysBeingPressed: Set<number> = new Set()
+  loopFunc: (() => void) | null = null
+  emitterContainer: Container
+
+  constructor(app: Application) {
     if (Engine.instance == null) {
       super()
       this.pixi = app
-      this.song = null;
-      this.tempo = null;
-      this.leftHand = true;
-      this.rightHand = true;
-      this.mode = 'playAlong'
-      this.keysBeingPressed = new Set()
-      Engine.instance = this;
-      this.loopFunc = null;
-      this.pixi.ticker.add(() => this.gameLoop());
-      this.emitterContainer= new Container();
+      Engine.instance = this
+      this.pixi.ticker.add(() => this.gameLoop())
+      this.emitterContainer = new Container()
     }
-    return Engine.instance;
+    return Engine.instance
   }
-  placeSong(midi, fileName) {
+
+  placeSong(midi: any, fileName: string): void {
     console.log('placing the song')
-    this.pause();
-    this.pixi.stage.removeChildren();
-    this.song = new Song(midi, fileName);
-    this.pixi.stage.addChild(this.song.tracker.container);
-    this.pixi.stage.addChild(this.song.container);
-    this.pixi.stage.addChild(this.emitterContainer);
-    this.tempo = this.song.tempo;
+    this.pause()
+    this.pixi.stage.removeChildren()
+    this.song = new Song(midi, fileName)
+    this.pixi.stage.addChild(this.song.tracker.container)
+    this.pixi.stage.addChild(this.song.container)
+    this.pixi.stage.addChild(this.emitterContainer)
+    this.tempo = this.song.tempo
     this.emit('tempoChange', Math.round(this.tempo))
     this.pixi.render()
   }
-  start() { 
-    this.pixi.ticker.start();
+
+  start(): void { 
+    this.pixi.ticker.start()
   }
-  pause() {
-    this.pixi.ticker.stop();
+
+  pause(): void {
+    this.pixi.ticker.stop()
   }
-  stop() {
-    this.pause();
-    this.song.reset()
-    window.dispatchEvent(new CustomEvent('reset'));
+
+  stop(): void {
+    this.pause()
+    this.song?.reset()
+    window.dispatchEvent(new CustomEvent('reset'))
     this.pixi.render()
   }
 
-
-  enableLooping(limits, callback) {
+  enableLooping(limits: { min: number, max: number }, callback: () => void): void {
     console.log('enabling looping', limits)
-    window.dispatchEvent(new CustomEvent('reset'));
-    this.song.position = limits.min;
-    if (this.loopFunc) this.pixi.ticker.remove(this.loopFunc);
-    this.loopFunc = () => this.loopInArea(limits, callback);
-    this.pixi.ticker.add(this.loopFunc);
+    window.dispatchEvent(new CustomEvent('reset'))
+    if (this.song) this.song.position = limits.min
+    if (this.loopFunc) this.pixi.ticker.remove(this.loopFunc)
+    this.loopFunc = () => this.loopInArea(limits, callback)
+    this.pixi.ticker.add(this.loopFunc)
   }
-  disableLooping() {
+
+  disableLooping(): void {
     console.log('disabling looping')
-    this.pixi.ticker.remove(this.loopFunc);
+    if (this.loopFunc) this.pixi.ticker.remove(this.loopFunc)
   }
-  loopInArea(limits, callback) {
-    if (this.song.position >= limits.max) {
-      this.song.position = limits.min;
+
+  loopInArea(limits: { min: number, max: number }, callback: () => void): void {
+    if (this.song && this.song.position >= limits.max) {
+      this.song.position = limits.min
       callback()
-      window.dispatchEvent(new CustomEvent('reset'));
+      window.dispatchEvent(new CustomEvent('reset'))
     }
   }
 
-
-  stepForward() {
-    window.dispatchEvent(new CustomEvent('reset'));
-    this.song.position += 240;
-    this.pixi.render()
-  }
-  stepBackward() {
-    window.dispatchEvent(new CustomEvent('reset'));
-    this.song.position -= 240;
+  stepForward(): void {
+    window.dispatchEvent(new CustomEvent('reset'))
+    if (this.song) this.song.position += 240
     this.pixi.render()
   }
 
-
-
-  tempoChange(tempo) {
-    this.tempo = Number(tempo);
+  stepBackward(): void {
+    window.dispatchEvent(new CustomEvent('reset'))
+    if (this.song) this.song.position -= 240
+    this.pixi.render()
   }
-  updateMode(mode) {
+
+  tempoChange(tempo: number): void {
+    this.tempo = Number(tempo)
+  }
+
+  updateMode(mode: string): void {
     this.mode = mode
   }
 
-  
-  gameLoop() {
-    this.song.position += bpm2px(this.tempo, this.pixi.ticker.deltaMS);
-    const hitPosition = -this.song.position + this.pixi.screen.height;
+  gameLoop(): void {
+    if (!this.song || !this.tempo) return
+    
+    this.song.position += bpm2px(this.tempo, this.pixi.ticker.deltaMS)
+    const hitPosition = -this.song.position + this.pixi.screen.height
+    
     for (let i = this.song.notes.length - 1; i >= 0; i -= 1) {
-      const note = this.song.notes[i];
-      note.update(hitPosition);
+      const note = this.song.notes[i]
+      note.update(hitPosition)
     }
   }
 }

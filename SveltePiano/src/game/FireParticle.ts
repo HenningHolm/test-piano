@@ -1,18 +1,37 @@
-import { Assets, Texture } from 'pixi.js';
-import * as particles from '@barvynkoa/particle-emitter'
+import { Assets, Texture, Container } from 'pixi.js';
+import * as particles from '@barvynkoa/particle-emitter';
+
+interface ParticleDefinitions {
+  lifetime?: {
+    min: number;
+    max: number;
+  };
+  frequency?: number;
+  emitterLifetime?: number;
+  maxParticles?: number;
+  addAtBack?: boolean;
+  pos?: { x: number; y: number };
+  autoUpdate?: boolean;
+  behaviors?: any[];
+}
 
 export default class FireParticle {
-  constructor(container, definitions, color) {
+  private fire!: Texture;
+  private particle!: Texture;
+
+  constructor(container: Container, definitions: ParticleDefinitions, color: string) {
     return this.fetchAssets().then(() => {
-      return this.initialize(container, definitions, color)
-    })
+      return this.initialize(container, definitions, color);
+    });
   }
-  async fetchAssets() {
+
+  async fetchAssets(): Promise<void> {
     this.fire = await Assets.load('/Fire.png');
     this.particle = await Assets.load('/particle.png');
   }
-  initialize(container, definitions, color) {
-    const defaultDefinitions = {
+
+  initialize(container: Container, definitions: ParticleDefinitions, color: string): particles.Emitter {
+    const defaultDefinitions: ParticleDefinitions = {
       lifetime: {
         min: 0.1,
         max: 1
@@ -30,9 +49,9 @@ export default class FireParticle {
           config: {
             speed: {
               list: [
-                {value: 200, time: 0},
-                {value: 50, time: 0.25},
-                {value: 5, time: 1}
+                { value: 200, time: 0 },
+                { value: 50, time: 0.25 },
+                { value: 5, time: 1 }
               ]
             },
             minMult: 0.5,
@@ -109,13 +128,13 @@ export default class FireParticle {
           }
         },
       ],
-    }
-    const finalDefinition = { ...defaultDefinitions, ...definitions}
+    };
+
+    const finalDefinition = { ...defaultDefinitions, ...definitions };
     return new particles.Emitter(container, finalDefinition);
   }
 
-  replaceBehaviors(newBehavior) {
-    
+  replaceBehaviors(newBehavior: any): void {
+    // Implementation needed
   }
 }
-

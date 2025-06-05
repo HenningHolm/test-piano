@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { color } from 'd3-color'
-  import { colorScale } from '../game/Note'
+  import { colorScale } from '../../game/Note'
 
   interface Props {
     velocity?: number

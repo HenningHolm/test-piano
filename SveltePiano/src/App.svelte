@@ -2,9 +2,9 @@
   import svelteLogo from './assets/svelte.svg'
   import viteLogo from '/vite.svg'
   import Counter from './lib/Counter.svelte'
-  import ThePanel from './components/ThePanel.svelte'
-  import TheKeyboard from './components/TheKeyboard.svelte'
-  import TheSheet from './components/TheSheet.svelte'
+  import ThePanel from './components/Panel/ThePanel.svelte'
+  import TheKeyboard from './components/Keyboard/TheKeyboard.svelte'
+  import TheSheet from './components/Sheet/TheSheet.svelte'
   import { setContext } from 'svelte'
 
   let engine = $state({})

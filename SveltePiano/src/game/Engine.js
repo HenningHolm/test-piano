@@ -1,9 +1,9 @@
 import { Container} from 'pixi.js';
 import { bpm2px } from '../utils/helpers';
-import _ from 'lodash';
 import Song from './Song';
 import EventFactory from './EventFactory';
 export default class Engine extends EventFactory {
+
   constructor(app) {
     if (Engine.instance == null) {
       super()
@@ -45,6 +45,8 @@ export default class Engine extends EventFactory {
     window.dispatchEvent(new CustomEvent('reset'));
     this.pixi.render()
   }
+
+
   enableLooping(limits, callback) {
     console.log('enabling looping', limits)
     window.dispatchEvent(new CustomEvent('reset'));
@@ -64,6 +66,8 @@ export default class Engine extends EventFactory {
       window.dispatchEvent(new CustomEvent('reset'));
     }
   }
+
+
   stepForward() {
     window.dispatchEvent(new CustomEvent('reset'));
     this.song.position += 240;
@@ -74,12 +78,17 @@ export default class Engine extends EventFactory {
     this.song.position -= 240;
     this.pixi.render()
   }
+
+
+
   tempoChange(tempo) {
     this.tempo = Number(tempo);
   }
   updateMode(mode) {
     this.mode = mode
   }
+
+  
   gameLoop() {
     this.song.position += bpm2px(this.tempo, this.pixi.ticker.deltaMS);
     const hitPosition = -this.song.position + this.pixi.screen.height;

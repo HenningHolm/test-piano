@@ -119,6 +119,7 @@
     margin: 0;
     padding: 0;
     position: relative;
+
   }
 
   .white-keys {
@@ -144,6 +145,7 @@
     height: 100%;
     border: 1px solid;
     border-radius: 5px;
+    border-color: rgb(0, 0, 0);
     background-color: whitesmoke;
     margin: 0;
     padding: 0;

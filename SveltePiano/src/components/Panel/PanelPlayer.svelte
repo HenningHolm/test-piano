@@ -1,6 +1,6 @@
 <script lang="ts">
   import { getContext, onMount } from 'svelte'
-  import Piano from '../game/Piano'
+  import Piano from '../../game/Piano'
   import PanelTemplate from './PanelTemplate.svelte'
 
   const engine = getContext('engine')

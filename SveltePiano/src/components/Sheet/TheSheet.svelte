@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte'
-  import initialize from '../game/Sketch'
+  import initialize from '../../game/Sketch'
 
   interface Props {
     onEngineReady: (engine: any) => void

@@ -1,9 +1,8 @@
 <script lang="ts">
   import { getContext } from 'svelte'
   import { Midi } from '@tonejs/midi'
-  import { faUpload, faRotateRight } from '@fortawesome/free-solid-svg-icons'
   import PanelTemplate from './PanelTemplate.svelte'
-  import { readFile } from '../utils/helpers'
+  import { readFile } from '../../utils/helpers'
 
   const engineContext = getContext('engine')
   
@@ -60,7 +59,7 @@
         <option label="Mozart - Rondo Alla Turca" value="Mozart - Rondo Alla Turca">Mozart - Rondo Alla Turca</option>
       </select>
       <button class="control" onclick={loadPredefinedSong}>
-        Rotate Right
+        Update
       </button>
     </div>
   {/snippet}

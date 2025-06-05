@@ -1,10 +1,9 @@
 <script lang="ts">
   import { onMount, getContext } from 'svelte'
   import Octave from './KeyOctave.svelte'
-  import piano from '../game/Piano'
-  import keyboardMapping from '../utils/keyboardMapping'
-  import { keysToBePressed } from '../game/Note'
-  import _ from 'lodash'
+  import piano from '../../game/Piano'
+  import keyboardMapping from '../../utils/keyboardMapping'
+  import { keysToBePressed } from '../../game/Note'
 
   interface Props {
     octaveAmount?: number
@@ -23,7 +22,7 @@
   let availableInputs = $state(null)
   let selectedInput = $state(null)
 
-  const octaveRange = $derived(_.range(startingOctave, startingOctave + octaveAmount))
+  const octaveRange = $derived(Array.from({ length: octaveAmount }, (_, i) => startingOctave + i))
 
   onMount(() => {
     octaveWidth = keyboard.offsetWidth / octaveAmount

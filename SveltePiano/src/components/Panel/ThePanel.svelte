@@ -4,8 +4,7 @@
   import PanelPlayer from './PanelPlayer.svelte'
   import PanelMods from './PanelMods.svelte'
   import PanelTempo from './PanelTempo.svelte'
-  import BuyMeACoffee from './BuyMeACoffee.svelte'
-  import AboutAuthor from './AboutAuthor.svelte'
+
 </script>
 
 <div id="panel">
@@ -17,9 +16,6 @@
   <PanelMods />
   <PanelTempo />
   <PanelMidiInput />
-
-  <!-- <BuyMeACoffee /> -->
-  <!-- <AboutAuthor /> -->
 </div>
 
 <style>

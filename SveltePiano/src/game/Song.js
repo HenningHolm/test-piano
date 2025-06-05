@@ -1,13 +1,12 @@
 import Note from './Note';
-import _ from 'lodash';
 import Engine from './Engine';
 import { Container } from 'pixi.js';
 import Tracker from './Tracker';
 
 export default class Song {
 
-  constructor(data, name) {
-    const {durationTicks, tracks, header} = data
+  constructor(mididata, name) {
+    const {durationTicks, tracks, header} = mididata
     this.durationTicks = durationTicks
     this.header = header
     this.name = name
@@ -22,6 +21,7 @@ export default class Song {
     });
     this.notes = this.container.children
     this.tracker = new Tracker(this)
+    console.log('Song created', this)
     return this
   }
 
@@ -39,6 +39,5 @@ export default class Song {
       note.particle.then(particle => {particle.emit = false})
     })
   }
-
 }
   

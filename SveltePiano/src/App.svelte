@@ -1,7 +1,4 @@
 <script lang="ts">
-  import svelteLogo from './assets/svelte.svg'
-  import viteLogo from '/vite.svg'
-  import Counter from './lib/Counter.svelte'
   import ThePanel from './components/Panel/ThePanel.svelte'
   import TheKeyboard from './components/Keyboard/TheKeyboard.svelte'
   import TheSheet from './components/Sheet/TheSheet.svelte'

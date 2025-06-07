@@ -1,7 +1,8 @@
 <script lang="ts">
-  import { onMount } from 'svelte'
+  import { onMount, onDestroy } from 'svelte'
   import { color } from 'd3-color'
   import { colorScale } from '../../game/Note'
+  import { musicEvents } from '../../game/EventBroker'
 
   interface Props {
     velocity?: number
@@ -14,14 +15,20 @@
   let { velocity = 0, note = '', midiNumber = 0, classType = '', style = '' }: Props = $props()
 
   let currentVelocity = $state(0)
+  let unsubscribeReset: (() => void) | null = null
 
   const keyColor = $derived(color(colorScale(midiNumber)))
 
   onMount(() => {
-    window.addEventListener('reset', releaseKey)
-    
-    return () => {
-      window.removeEventListener('reset', releaseKey)
+    // Replace window event with EventBroker
+    unsubscribeReset = musicEvents.on('reset', () => {
+      releaseKey()
+    })
+  })
+
+  onDestroy(() => {
+    if (unsubscribeReset) {
+      unsubscribeReset()
     }
   })
 

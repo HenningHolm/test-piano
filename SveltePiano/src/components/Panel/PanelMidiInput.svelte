@@ -1,13 +1,11 @@
 <script lang="ts">
   import { onMount } from 'svelte'
-  import { getContext } from 'svelte'
   import PanelTemplate from './PanelTemplate.svelte'
+  import { musicEvents } from '../../game/EventBroker'
 
-  const engineContext = getContext('engine')
-
-  let availableInputs = $state([])
-  let selectedInput = $state(null)
-  let midiDevice = $state(null)
+  let availableInputs = $state<string[]>([])
+  let selectedInput = $state<string | null>(null)
+  let midiDevice = $state<any>(null)
 
   onMount(() => {
     if (navigator.requestMIDIAccess) {
@@ -21,7 +19,7 @@
     }
   })
 
-  function updateDeviceList(midiAccess) {
+  function updateDeviceList(midiAccess: any) {
     const inputs = midiAccess.inputs.values()
     availableInputs = []
     for (const input of inputs) {
@@ -32,7 +30,7 @@
     }
   }
 
-  function selectMidiInput(inputName) {
+  function selectMidiInput(inputName: string) {
     if (navigator.requestMIDIAccess) {
       navigator.requestMIDIAccess()
         .then(midiAccess => {
@@ -52,30 +50,16 @@
     }
   }
 
-  function setupMidiListeners(device) {
-    device.onmidimessage = (message) => {
+  function setupMidiListeners(device: any) {
+    device.onmidimessage = (message: any) => {
       const [command, note, velocity] = message.data
       
       if (command === 144 && velocity > 0) { // Note on
-        const event = new CustomEvent('note-on', {
-          detail: { 
-            octave: Math.floor(note / 12) - 1, 
-            pitch: ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'][note % 12], 
-            midi: note, 
-            velocity 
-          }
-        })
-        window.dispatchEvent(event)
+        // Send bare MIDI nummer - la Note.ts beregne octave/pitch
+        musicEvents.emit('note-on', { midi: note, velocity })
       } else if (command === 128 || (command === 144 && velocity === 0)) { // Note off
-        const event = new CustomEvent('note-off', {
-          detail: { 
-            octave: Math.floor(note / 12) - 1, 
-            pitch: ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'][note % 12], 
-            midi: note, 
-            velocity 
-          }
-        })
-        window.dispatchEvent(event)
+        // Send bare MIDI nummer - la Note.ts beregne octave/pitch  
+        musicEvents.emit('note-off', { midi: note })
       }
     }
   }
@@ -107,8 +91,7 @@
       <span>No input available</span>
     {/if}
     <button onclick={refreshMidiDevices}>
-      <!-- <FontAwesomeIcon icon={faRefresh} /> -->
-       Refresh
+      Refresh
     </button>
   {/snippet}
 </PanelTemplate>

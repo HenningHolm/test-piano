@@ -1,45 +1,39 @@
 import { interpolateMagma } from 'd3-scale-chromatic';
 import { scaleSequential } from 'd3-scale';
 import { color } from 'd3-color';
-import { Sprite, Texture, Application } from 'pixi.js';
+import { Sprite, Texture } from 'pixi.js';
 import Engine from './Engine';
 import FireParticle from './FireParticle';
-import * as particles from '@barvynkoa/particle-emitter';
+import { musicEvents } from './EventBroker';
 
 const LOWEST_KEY = 24;
 const OCTAVE_AMOUNT = 7;
-
 const colorScale = scaleSequential()
   .domain([24, OCTAVE_AMOUNT * 12])
   .interpolator(interpolateMagma);
-
 const keysToBePressed = new Set<number>();
 
 interface MidiNote {
   midi: number;
   durationTicks: number;
   ticks: number;
-  octave: number;
-  pitch: string;
 }
-
-type HandType = 'left' | 'right';
 
 export default class Note extends Sprite {
   public note: MidiNote;
   public midi: number;
   public engine: Engine;
-  public pixi: Application;
+  public pixi: any;
   public w: number;
   public h: number;
-  public hand: HandType;
-  public isNoteOn: boolean = false;
-  public isPlayed: boolean = false;
-  public hitPosition: number = 0;
+  public hand: 'left' | 'right';
+  public isNoteOn: boolean;
+  public isPlayed: boolean;
+  public hitPosition: number;
   public defaultColor: string;
-  public disabledColor: number = 0x8b95a6;
-  public noteOnColor: number = 0x2f329f;
-  public particle: Promise<particles.Emitter>;
+  public disabledColor: number;
+  public noteOnColor: number;
+  public particle: Promise<any>;
 
   constructor(note: MidiNote, i: number) {
     super(Texture.WHITE);
@@ -53,16 +47,19 @@ export default class Note extends Sprite {
     this.hand = i === 1 ? 'left' : 'right';
     this.x = (midi - LOWEST_KEY + 1) * this.w;
     this.y = -ticks;
+    this.isNoteOn = false;
+    this.isPlayed = false;
+    this.hitPosition = 0;
     this.anchor.set(1, 1);
     this.defaultColor = color(colorScale(this.note.midi))!.formatHex();
+    this.disabledColor = 0x8b95a6;
+    this.noteOnColor = 0x2f329f;
     this.tint = this.defaultColor;
-    
     this.particle = new FireParticle(
       this.engine.emitterContainer, 
       { pos: { x: this.x - this.w, y: this.pixi.screen.height } }, 
       this.defaultColor
     );
-    
     this.particle.then(particle => {
       particle.emit = false;
     });
@@ -73,14 +70,12 @@ export default class Note extends Sprite {
     this.width = this.w;
     this.height = this.h;
     this.hitPosition = hitPosition;
-    
     if (this.noteOffCheck()) this.noteOff();
     if (this.noteOnCheck()) {
       this.noteOn();
       this.pickMode();
     }
-    
-    this.tint = this.handEnableCheck() ? this.defaultColor : this.disabledColor;
+    this.handEnableCheck() ? this.tint = this.defaultColor : this.tint = this.disabledColor;
   }
 
   noteOnCheck(): boolean {
@@ -98,15 +93,18 @@ export default class Note extends Sprite {
   noteOn(): void {
     if (!this.isNoteOn) {
       this.tint = this.noteOnColor;
-      const { octave, pitch, midi } = this.note;
-      const event = new CustomEvent('note-on', {
-        detail: { octave, pitch, midi },
-      });
-      console.log(octave, pitch, midi);
-      window.dispatchEvent(event);
+      const { midi } = this.note;
+      
+      // Calculate octave and pitch from MIDI number
+      const octave = Math.floor((midi - 12) / 12);
+      const pitchIndex = (midi - 12) % 12;
+      const pitchNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+      const pitch = pitchNames[pitchIndex];
+      
+      // Replace window event with MusicEvents
+      musicEvents.emit('note-on', { midi, octave, pitch });
       this.isNoteOn = true;
     }
-    
     this.particle.then(particle => {
       particle.emit = true;
     });
@@ -114,14 +112,17 @@ export default class Note extends Sprite {
 
   noteOff(): void {
     if (!this.isNoteOn) return;
+    const { midi } = this.note;
     
-    const { octave, pitch, midi } = this.note;
-    const event = new CustomEvent('note-off', {
-      detail: { octave, pitch, midi },
-    });
-    window.dispatchEvent(event);
+    // Calculate octave and pitch from MIDI number
+    const octave = Math.floor((midi - 12) / 12);
+    const pitchIndex = (midi - 12) % 12;
+    const pitchNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    const pitch = pitchNames[pitchIndex];
+    
+    // Replace window event with MusicEvents
+    musicEvents.emit('note-off', { midi, octave, pitch });
     this.isNoteOn = false;
-    
     this.particle.then(particle => {
       particle.emit = false;
     });
@@ -144,4 +145,3 @@ export default class Note extends Sprite {
 }
 
 export { colorScale, keysToBePressed };
-export type { MidiNote, HandType };

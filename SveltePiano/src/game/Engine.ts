@@ -1,9 +1,9 @@
 import { Container, Application } from 'pixi.js'
 import { bpm2px } from '../utils/helpers'
 import Song from './Song'
-import EventFactory from './EventFactory'
+import { musicEvents } from './EventBroker'
 
-export default class Engine extends EventFactory {
+export default class Engine {
   static instance: Engine | null = null
   
   pixi: Application
@@ -18,7 +18,6 @@ export default class Engine extends EventFactory {
 
   constructor(app: Application) {
     if (Engine.instance == null) {
-      super()
       this.pixi = app
       Engine.instance = this
       this.pixi.ticker.add(() => this.gameLoop())
@@ -36,7 +35,7 @@ export default class Engine extends EventFactory {
     this.pixi.stage.addChild(this.song.container)
     this.pixi.stage.addChild(this.emitterContainer)
     this.tempo = this.song.tempo
-    this.emit('tempoChange', Math.round(this.tempo))
+    musicEvents.emit('tempo-change', { bpm: Math.round(this.tempo) })
     this.pixi.render()
   }
 
@@ -51,13 +50,13 @@ export default class Engine extends EventFactory {
   stop(): void {
     this.pause()
     this.song?.reset()
-    window.dispatchEvent(new CustomEvent('reset'))
+    musicEvents.emit('reset', {})
     this.pixi.render()
   }
 
   enableLooping(limits: { min: number, max: number }, callback: () => void): void {
     console.log('enabling looping', limits)
-    window.dispatchEvent(new CustomEvent('reset'))
+    musicEvents.emit('reset', {})
     if (this.song) this.song.position = limits.min
     if (this.loopFunc) this.pixi.ticker.remove(this.loopFunc)
     this.loopFunc = () => this.loopInArea(limits, callback)
@@ -73,18 +72,18 @@ export default class Engine extends EventFactory {
     if (this.song && this.song.position >= limits.max) {
       this.song.position = limits.min
       callback()
-      window.dispatchEvent(new CustomEvent('reset'))
+      musicEvents.emit('reset', {})
     }
   }
 
   stepForward(): void {
-    window.dispatchEvent(new CustomEvent('reset'))
+    musicEvents.emit('reset', {})
     if (this.song) this.song.position += 240
     this.pixi.render()
   }
 
   stepBackward(): void {
-    window.dispatchEvent(new CustomEvent('reset'))
+    musicEvents.emit('reset', {})
     if (this.song) this.song.position -= 240
     this.pixi.render()
   }
@@ -95,15 +94,17 @@ export default class Engine extends EventFactory {
 
   updateMode(mode: string): void {
     this.mode = mode
+    musicEvents.emit('mode-change', { mode })
   }
 
   gameLoop(): void {
+    console.log('game loop running')
     if (!this.song || !this.tempo) return
     
     this.song.position += bpm2px(this.tempo, this.pixi.ticker.deltaMS)
-    const hitPosition = -this.song.position + this.pixi.screen.height
-    
+    const hitPosition = -this.song.position + this.pixi.screen.height    
     for (let i = this.song.notes.length - 1; i >= 0; i -= 1) {
+      console.log('updating note', 'i:', i, 'hitPosition:', hitPosition, 'length:', this.song.notes.length) 
       const note = this.song.notes[i]
       note.update(hitPosition)
     }

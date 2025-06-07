@@ -1,9 +1,10 @@
 <script lang="ts">
-  import { onMount, getContext } from 'svelte'
+  import { onMount, onDestroy, getContext } from 'svelte'
   import Octave from './KeyOctave.svelte'
   import piano from '../../game/Piano'
-  import keyboardMapping from '../../utils/keyboardMapping'
   import { keysToBePressed } from '../../game/Note'
+  import { musicEvents } from '../../game/EventBroker'
+  import Engine from '../../game/Engine'
 
   interface Props {
     octaveAmount?: number
@@ -12,7 +13,6 @@
 
   let { octaveAmount = 7, startingOctave = 2 }: Props = $props()
   
-  const engineContext = getContext('engine') as any;
   
   let keyboard: HTMLDivElement
   let octaves: Octave[] = []
@@ -21,6 +21,7 @@
   let keyWidth = $state<null|number>(null)
   let availableInputs = $state(null)
   let selectedInput = $state(null)
+  let unsubscribeFunctions: Array<() => void> = []
 
   const octaveRange = $derived(Array.from({ length: octaveAmount }, (_, i) => startingOctave + i))
 
@@ -28,44 +29,29 @@
     octaveWidth = keyboard.offsetWidth / octaveAmount
     keyWidth = octaveWidth / 12
 
-    window.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowLeft') engineContext.get().stepBackward()
-      if (e.key === 'ArrowRight') engineContext.get().stepForward()
-      if (!keyboardMapping[e.key]) return
-      
-      const { octave, pitch, midi } = keyboardMapping[e.key]
+    // Replace window events with EventBroker - keep same logic
+    const unsubNoteOn = musicEvents.on('note-on', (e) => {
+      const { octave, pitch, midi, velocity } = e
       if (keysToBePressed.has(midi)) {
         keysToBePressed.delete(midi)
-        engineContext.get().keysBeingPressed.add(midi)
-        engineContext.get().start()
-      }
-      piano.keyDown({ midi })
-      octaves[octave - 1]?.pressKey(pitch)
-    })
-
-    window.addEventListener('keyup', (e) => {
-      if (!keyboardMapping[e.key]) return
-      const { octave, pitch, midi } = keyboardMapping[e.key]
-      piano.keyUp({ midi })
-      octaves[octave - 1]?.releaseKey(pitch)
-    })
-
-    window.addEventListener('note-on', (e) => {
-      const { octave, pitch, midi, velocity } = e.detail
-      if (keysToBePressed.has(midi)) {
-        keysToBePressed.delete(midi)
-        engineContext.get().keysBeingPressed.add(midi)
-        engineContext.get().start()
+        Engine.instance?.keysBeingPressed.add(midi)
+        Engine.instance?.start()
       }
       piano.keyDown({ midi, velocity })
       octaves[octave - 1]?.pressKey(pitch)
     })
 
-    window.addEventListener('note-off', (e) => {
-      const { octave, pitch, midi, velocity } = e.detail
+    const unsubNoteOff = musicEvents.on('note-off', (e) => {
+      const { octave, pitch, midi, velocity } = e
       piano.keyUp({ midi, velocity })
       octaves[octave - 1]?.releaseKey(pitch)
     })
+
+    unsubscribeFunctions.push(unsubNoteOn, unsubNoteOff)
+  })
+
+  onDestroy(() => {
+    unsubscribeFunctions.forEach(unsub => unsub())
   })
 </script>
 

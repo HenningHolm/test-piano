@@ -2,28 +2,20 @@
   import ThePanel from './components/Panel/ThePanel.svelte'
   import TheKeyboard from './components/Keyboard/TheKeyboard.svelte'
   import TheSheet from './components/Sheet/TheSheet.svelte'
-  import { setContext } from 'svelte'
+  // import KeyboardInputs from './components/Inputs/KeyboardInputs.svelte'
 
-  let engine = $state({})
   let isEngineReady = $state(false)
-  
-  setContext('engine', {
-    get: () => engine,
-    set: (value) => { engine = value }
-  })
 
-  function assignApp(engineInstance) {
+  function assignApp(engineInstance: any) {
     console.log('The engine is ready', engineInstance)
-    engine = engineInstance
     isEngineReady = true
-    window.engine = engineInstance
+    // Ikke nødvendig å lagre engine - bruker Engine.instance direkte
   }
 </script>
 
-
   <div id="game">
     {#if isEngineReady}
-      <ThePanel />
+      <!-- <ThePanel /> -->
     {/if}
     <TheSheet onEngineReady={assignApp} />
     {#if isEngineReady}

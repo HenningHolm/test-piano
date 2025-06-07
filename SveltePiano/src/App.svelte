@@ -15,7 +15,7 @@
 
   <div id="game">
     {#if isEngineReady}
-      <!-- <ThePanel /> -->
+      <ThePanel />
     {/if}
     <TheSheet onEngineReady={assignApp} />
     {#if isEngineReady}

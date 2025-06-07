@@ -104,7 +104,6 @@ export default class Engine {
     this.song.position += bpm2px(this.tempo, this.pixi.ticker.deltaMS)
     const hitPosition = -this.song.position + this.pixi.screen.height    
     for (let i = this.song.notes.length - 1; i >= 0; i -= 1) {
-      console.log('updating note', 'i:', i, 'hitPosition:', hitPosition, 'length:', this.song.notes.length) 
       const note = this.song.notes[i]
       note.update(hitPosition)
     }

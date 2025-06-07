@@ -1,29 +1,27 @@
 <script lang="ts">
-  import { getContext } from 'svelte'
   import PanelTemplate from './PanelTemplate.svelte'
-
-  const engineContext = getContext('engine')
+  import Engine from '../../game/Engine'
 
   let leftHand = $state(true)
   let rightHand = $state(true)
   let mode = $state('playAlong')
 
   function updateLeftHand() {
-    const engine = engineContext.get()
+    const engine = Engine.instance
     if (engine) {
       engine.leftHand = leftHand
     }
   }
 
   function updateRightHand() {
-    const engine = engineContext.get()
+    const engine = Engine.instance
     if (engine) {
       engine.rightHand = rightHand
     }
   }
 
   function updateMode() {
-    const engine = engineContext.get()
+    const engine = Engine.instance
     if (engine) {
       engine.updateMode(mode)
     }

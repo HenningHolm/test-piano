@@ -1,9 +1,8 @@
 <script lang="ts">
-  import { getContext, onMount } from 'svelte'
+  import { onMount } from 'svelte'
   import Piano from '../../game/Piano'
   import PanelTemplate from './PanelTemplate.svelte'
-
-  const engine = getContext('engine')
+  import Engine from '../../game/Engine'
 
   let isPlaying = $state(false)
   let selectedSong = $state('Mozart - Rondo Alla Turca')
@@ -22,36 +21,49 @@
 
   function play() {
     isPlaying = true
-    const engineInstance = engine.get()
-    engineInstance.start()
+    const engineInstance = Engine.instance
+    if (engineInstance) {
+      engineInstance.start()
+    }
   }
 
   function stop() {
     isPlaying = false
-    const engineInstance = engine.get()
-    engineInstance.stop()
+    const engineInstance = Engine.instance
+    if (engineInstance) {
+      engineInstance.stop()
+    }
   }
 
   function pause() {
     isPlaying = false
-    const engineInstance = engine.get()
-    engineInstance.pause()
+    const engineInstance = Engine.instance
+    if (engineInstance) {
+      engineInstance.pause()
+    }
   }
 
   function stepForward() {
-    const engineInstance = engine.get()
-    engineInstance.stepForward()
+    const engineInstance = Engine.instance
+    if (engineInstance) {
+      engineInstance.stepForward()
+    }
   }
 
   function stepBackward() {
-    const engineInstance = engine.get()
-    engineInstance.stepBackward()
+    const engineInstance = Engine.instance
+    if (engineInstance) {
+      engineInstance.stepBackward()
+    }
   }
+
+  // Reactive computation for song name
+  const currentSongName = $derived(Engine.instance?.song?.name || '')
 </script>
-<!-- the buttons could be replaced with icons later -->
+
 <PanelTemplate title="Player">
   {#snippet children()}
-    <p>{engine.get()?.song?.name || ''}</p>
+    <p>{currentSongName}</p>
     {#if checkPianoLoaded}
       <div class="controls">
         <button class="control" disabled={!checkPianoLoaded} onclick={stepBackward}>

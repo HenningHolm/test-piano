@@ -1,10 +1,8 @@
 <script lang="ts">
-  import { getContext } from 'svelte'
   import { Midi } from '@tonejs/midi'
   import PanelTemplate from './PanelTemplate.svelte'
   import { readFile } from '../../utils/helpers'
-
-  const engineContext = getContext('engine')
+  import Engine from '../../game/Engine'
   
   let selectedSong = $state('Mozart - Rondo Alla Turca')
   let fileContent = $state(null)
@@ -22,8 +20,10 @@
         const result = e.target?.result
         if (result) {
           const midi = new Midi(result as ArrayBuffer)
-          const engine = engineContext.get()
-          engine.placeSong(midi, file.name)
+          const engine = Engine.instance
+          if (engine) {
+            engine.placeSong(midi, file.name)
+          }
         }
       }
       reader.readAsArrayBuffer(file)
@@ -31,9 +31,11 @@
   }
 
   async function loadPredefinedSong() {
-    const engine = engineContext.get()
-    const midiFile = await readFile('MozartWolfgangAmadeus_AllaTurcaRondo.midi')
-    engine.placeSong(midiFile, selectedSong)
+    const engine = Engine.instance
+    if (engine) {
+      const midiFile = await readFile('MozartWolfgangAmadeus_AllaTurcaRondo.midi')
+      engine.placeSong(midiFile, selectedSong)
+    }
   }
 </script>
 

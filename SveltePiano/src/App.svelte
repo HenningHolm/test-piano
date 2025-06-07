@@ -1,6 +1,6 @@
 <script lang="ts">
   import ThePanel from './components/Panel/ThePanel.svelte'
-  import TheKeyboard from './components/Keyboard/TheKeyboard.svelte'
+  import ThePiano from './components/Piano/ThePiano.svelte'
   import TheSheet from './components/Sheet/TheSheet.svelte'
   import KeyboardInputs from './components/Inputs/KeyboardInputs.svelte';
   // import KeyboardInputs from './components/Inputs/KeyboardInputs.svelte'
@@ -20,7 +20,7 @@
     {/if}
     <TheSheet onEngineReady={assignApp} />
     {#if isEngineReady}
-      <TheKeyboard />
+      <ThePiano />
     {/if}
     <KeyboardInputs />
   </div>
@@ -53,7 +53,7 @@
     border: solid 1px black;
   }
 
-  :global(#keyboard) {
+  :global(#piano) {
     grid-area: keyboard;
   }
 

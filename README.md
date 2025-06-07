@@ -280,9 +280,9 @@ export default {
 
 ```
 App.svelte
-├── TheKeyboard.svelte          # Main piano keyboard
-│   └── KeyOctave.svelte       # Single octave container
-│       └── Key.svelte         # Individual piano key
+├── ThePiano.svelte          # Main piano keyboard
+│   └── TangentyOctave.svelte       # Single octave container
+│       └── Tangent.svelte         # Individual piano key
 ├── Panel/
 │   ├── PanelPlayer.svelte     # Playback controls
 │   ├── PanelSongSelect.svelte # MIDI file selection
@@ -312,7 +312,7 @@ App.svelte
   <div class="controls">  
     <Panel components />   <!-- UI controls -->
   </div>
-  <TheKeyboard />         <!-- Piano interface -->
+  <ThePiano />         <!-- Piano interface -->
 </div>
 ```
 
@@ -339,7 +339,7 @@ App.svelte
 - Provide rendering surface
 - Handle canvas sizing
 
-#### TheKeyboard.svelte - Piano Interface
+#### ThePiano.svelte - Piano Interface
 ```svelte
 <script lang="ts">
   // Keyboard layout
@@ -590,9 +590,9 @@ SveltePiano/
 ├── src/
 │   ├── components/           # Svelte UI components
 │   │   ├── Keyboard/        # Piano keyboard components
-│   │   │   ├── TheKeyboard.svelte
-│   │   │   ├── KeyOctave.svelte
-│   │   │   └── Key.svelte
+│   │   │   ├── ThePiano.svelte
+│   │   │   ├── TangentOctave.svelte
+│   │   │   └── Tangent.svelte
 │   │   ├── Panel/           # Control panel components
 │   │   │   ├── PanelPlayer.svelte
 │   │   │   ├── PanelSongSelect.svelte

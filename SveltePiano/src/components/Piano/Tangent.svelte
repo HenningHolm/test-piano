@@ -2,7 +2,7 @@
   import { onMount, onDestroy } from 'svelte'
   import { color } from 'd3-color'
   import { colorScale } from '../../game/Note'
-  import { musicEvents } from '../../game/EventBroker'
+  import { musicEvents } from '../../game/EventBroker';
 
   interface Props {
     velocity?: number
@@ -17,10 +17,10 @@
   let currentVelocity = $state(0)
   let unsubscribeReset: (() => void) | null = null
 
+  // Beregn farge basert på MIDI nummer (note-basert, ikke octave-basert)
   const keyColor = $derived(color(colorScale(midiNumber)))
 
   onMount(() => {
-    // Replace window event with EventBroker
     unsubscribeReset = musicEvents.on('reset', () => {
       releaseKey()
     })
@@ -32,14 +32,12 @@
     }
   })
 
-  export function pressKey(vel: number, midi: number) {
-    // piano.keyDown({ midi: 72 });
-    currentVelocity = 100
+  export function pressKey(vel: number = 100) {
+    currentVelocity = vel
   }
 
-  export function releaseKey(midi?: number) {
+  export function releaseKey() {
     currentVelocity = 0
-    // piano.keyUp({ midi: midiNumber });
   }
 </script>
 

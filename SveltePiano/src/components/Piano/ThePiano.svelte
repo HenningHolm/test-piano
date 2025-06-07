@@ -6,6 +6,7 @@
   import { keysToBePressed } from '../../game/Note'
   import { musicEvents } from '../../game/EventBroker'
   import Engine from '../../game/Engine'
+  import { midiToOctavePitch } from '../../utils/midiHelpers';
 
   interface Props {
     octaveAmount?: number
@@ -14,14 +15,10 @@
 
   let { octaveAmount = 7, startingOctave = 2 }: Props = $props()
   
-  
   let keyboard: HTMLDivElement
   let octaves: Octave[] = []
-  let sheetWidth = $state(null)
   let octaveWidth = $state<null|number>(null) 
   let keyWidth = $state<null|number>(null)
-  let availableInputs = $state(null)
-  let selectedInput = $state(null)
   let unsubscribeFunctions: Array<() => void> = []
 
   const octaveRange = $derived(Array.from({ length: octaveAmount }, (_, i) => startingOctave + i))
@@ -32,7 +29,10 @@
 
     // Replace window events with EventBroker - keep same logic
     const unsubNoteOn = musicEvents.on('note-on', (e) => {
-      const { octave, pitch, midi, velocity } = e
+      const { midi, velocity } = e;
+      const { octave, pitch } = midiToOctavePitch(midi);
+
+
       if (keysToBePressed.has(midi)) {
         keysToBePressed.delete(midi)
         Engine.instance?.keysBeingPressed.add(midi)
@@ -43,9 +43,10 @@
     })
 
     const unsubNoteOff = musicEvents.on('note-off', (e) => {
-      const { octave, pitch, midi, velocity } = e
-      piano.keyUp({ midi, velocity })
-      octaves[octave - 1]?.releaseKey(pitch)
+      const { midi } = e;
+        const { octave, pitch } = midiToOctavePitch(midi);
+      piano.keyUp({ midi });
+      octaves[octave - 1]?.releaseKey(pitch);
     })
 
     unsubscribeFunctions.push(unsubNoteOn, unsubNoteOff)
@@ -56,7 +57,7 @@
   })
 </script>
 
-<div id="keyboard" bind:this={keyboard}>
+<div id="piano" bind:this={keyboard}>
   {#each octaveRange as k, index}
     <Octave 
       bind:this={octaves[index]}
@@ -68,7 +69,7 @@
 </div>
 
 <style>
-  #keyboard {
+  #piano {
     display: flex;
     margin-top: -5px;
     margin-bottom: 0px;

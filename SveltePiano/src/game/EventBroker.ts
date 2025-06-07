@@ -1,6 +1,6 @@
 interface MusicEvents {
-  'note-on': { midi: number; velocity?: number; octave: number; pitch: string }
-  'note-off': { midi: number; octave: number; pitch: string }
+  'note-on': { midi: number; velocity?: number }
+  'note-off': { midi: number }
   'tempo-change': { bpm: number }
   'song-loaded': { name: string; duration: number }
   'mode-change': { mode: string }

@@ -95,14 +95,8 @@ export default class Note extends Sprite {
       this.tint = this.noteOnColor;
       const { midi } = this.note;
       
-      // Calculate octave and pitch from MIDI number
-      const octave = Math.floor((midi - 12) / 12);
-      const pitchIndex = (midi - 12) % 12;
-      const pitchNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-      const pitch = pitchNames[pitchIndex];
-      
-      // Replace window event with MusicEvents
-      musicEvents.emit('note-on', { midi, octave, pitch });
+      // Send kun MIDI - lean event
+      musicEvents.emit('note-on', { midi });
       this.isNoteOn = true;
     }
     this.particle.then(particle => {
@@ -114,14 +108,8 @@ export default class Note extends Sprite {
     if (!this.isNoteOn) return;
     const { midi } = this.note;
     
-    // Calculate octave and pitch from MIDI number
-    const octave = Math.floor((midi - 12) / 12);
-    const pitchIndex = (midi - 12) % 12;
-    const pitchNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-    const pitch = pitchNames[pitchIndex];
-    
-    // Replace window event with MusicEvents
-    musicEvents.emit('note-off', { midi, octave, pitch });
+    // Send kun MIDI - lean event  
+    musicEvents.emit('note-off', { midi });
     this.isNoteOn = false;
     this.particle.then(particle => {
       particle.emit = false;

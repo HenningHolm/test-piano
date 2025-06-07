@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Key from './Key.svelte'
+  import Key from './Tangent.svelte'
 
   interface Props {
     keyWidth: number

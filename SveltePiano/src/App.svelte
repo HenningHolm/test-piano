@@ -2,6 +2,7 @@
   import ThePanel from './components/Panel/ThePanel.svelte'
   import TheKeyboard from './components/Keyboard/TheKeyboard.svelte'
   import TheSheet from './components/Sheet/TheSheet.svelte'
+  import KeyboardInputs from './components/Inputs/KeyboardInputs.svelte';
   // import KeyboardInputs from './components/Inputs/KeyboardInputs.svelte'
 
   let isEngineReady = $state(false)
@@ -21,6 +22,7 @@
     {#if isEngineReady}
       <TheKeyboard />
     {/if}
+    <KeyboardInputs />
   </div>
 
 

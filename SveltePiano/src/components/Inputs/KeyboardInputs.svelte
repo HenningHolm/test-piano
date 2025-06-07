@@ -32,11 +32,11 @@
     
     const mapping = keyboardMapping[e.key]
     if (mapping) {
-      const { midi, octave, pitch } = mapping
+      const { midi } = mapping  // Kun MIDI nummer
       pressedKeys.add(e.key)
       
-      // Send through EventBroker system
-      musicEvents.emit('note-on', { midi, octave, pitch })
+      // Send kun MIDI - la ThePiano beregne octave/pitch
+      musicEvents.emit('note-on', { midi })
     }
   }
 
@@ -45,11 +45,10 @@
     
     const mapping = keyboardMapping[e.key]
     if (mapping) {
-      const { midi, octave, pitch } = mapping
+      const { midi } = mapping
       pressedKeys.delete(e.key)
       
-      // Send through EventBroker system
-      musicEvents.emit('note-off', { midi, octave, pitch })
+      musicEvents.emit('note-off', { midi })
     }
   }
 </script>

@@ -1,7 +1,8 @@
 <script lang="ts">
   import { onMount, onDestroy, getContext } from 'svelte'
-  import Octave from './KeyOctave.svelte'
+  import Octave from './TangentOctave.svelte'
   import piano from '../../game/Piano'
+
   import { keysToBePressed } from '../../game/Note'
   import { musicEvents } from '../../game/EventBroker'
   import Engine from '../../game/Engine'

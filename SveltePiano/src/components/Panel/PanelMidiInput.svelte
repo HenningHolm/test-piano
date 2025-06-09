@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { onMount } from 'svelte'
+  import { onMount, onDestroy } from 'svelte'
+  import WebMidi from 'webmidi';
   import PanelTemplate from './PanelTemplate.svelte'
   import { musicEvents } from '../../game/EventBroker'
 
@@ -7,68 +8,68 @@
   let selectedInput = $state<string | null>(null)
   let midiDevice = $state<any>(null)
 
-  onMount(() => {
-    if (navigator.requestMIDIAccess) {
-      navigator.requestMIDIAccess()
-        .then(midiAccess => {
-          console.log('MIDI ready!')
-          updateDeviceList(midiAccess)
-          midiAccess.onstatechange = () => updateDeviceList(midiAccess)
-        })
-        .catch(err => console.log('Something went wrong', err))
+  onMount(async () => {
+    try {
+      await WebMidi.enable()
+      console.log('WebMidi enabled!')
+      console.log('Inputs:', WebMidi.inputs)
+      console.log('Outputs:', WebMidi.outputs)
+      updateDeviceList()
+      
+      // Listen for device changes
+      WebMidi.addListener('connected', updateDeviceList)
+      WebMidi.addListener('disconnected', updateDeviceList)
+    } catch (err) {
+      console.error('WebMidi could not be enabled:', err)
     }
   })
 
-  function updateDeviceList(midiAccess: any) {
-    const inputs = midiAccess.inputs.values()
-    availableInputs = []
-    for (const input of inputs) {
-      availableInputs.push(input.name)
+  onDestroy(() => {
+    // Clean up listeners
+    if (midiDevice) {
+      midiDevice.removeListener()
     }
-    if (availableInputs.length > 0) {
+    WebMidi.removeListener()
+  })
+
+  function updateDeviceList() {
+    availableInputs = WebMidi.inputs.map(input => input.name)
+    if (availableInputs.length > 0 && !selectedInput) {
       selectedInput = availableInputs[0]
     }
   }
 
   function selectMidiInput(inputName: string) {
-    if (navigator.requestMIDIAccess) {
-      navigator.requestMIDIAccess()
-        .then(midiAccess => {
-          const inputs = midiAccess.inputs.values()
-          for (const input of inputs) {
-            if (input.name === inputName) {
-              if (midiDevice) {
-                midiDevice.onmidimessage = null
-              }
-              
-              midiDevice = input
-              setupMidiListeners(input)
-              break
-            }
-          }
-        })
+    // Clear previous device listeners
+    if (midiDevice) {
+      midiDevice.removeListener()
+    }
+
+    // Find and setup new device
+    midiDevice = WebMidi.getInputByName(inputName)
+    if (midiDevice) {
+      setupMidiListeners(midiDevice)
     }
   }
 
   function setupMidiListeners(device: any) {
-    device.onmidimessage = (message: any) => {
-      const [command, note, velocity] = message.data
-      if (command === 144 && velocity > 0) { // Note on
-        // Send bare MIDI nummer - la Note.ts beregne octave/pitch
-        musicEvents.emit('note-on', { midi: note, velocity })
-      } else if (command === 128 || (command === 144 && velocity === 0)) { // Note off
-        // Send bare MIDI nummer - la Note.ts beregne octave/pitch  
-        musicEvents.emit('note-off', { midi: note })
-      }
-    }
+    // Note on events
+    device.addListener('noteon', 'all', (e: any) => {
+      const midi = e.note.number
+      // Bruk normalized velocity (0-1) som Tone.js Piano forventer!
+      const velocity = e.velocity  // 0-1 range, ikke rawVelocity!      
+      musicEvents.emit('note-on', { midi, velocity })
+    })
+
+    // Note off events
+    device.addListener('noteoff', 'all', (e: any) => {
+      const midi = e.note.number
+      musicEvents.emit('note-off', { midi })
+    })
   }
 
   function refreshMidiDevices() {
-    if (navigator.requestMIDIAccess) {
-      navigator.requestMIDIAccess()
-        .then(midiAccess => updateDeviceList(midiAccess))
-        .catch(err => console.log('Error refreshing MIDI devices', err))
-    }
+    updateDeviceList()
   }
 
   $effect(() => {
@@ -78,7 +79,7 @@
   })
 </script>
 
-<PanelTemplate title="Midi Input">
+<PanelTemplate title="Midi Input (WebMidi)">
   {#snippet children()}
     {#if availableInputs.length > 0}
       <select id="midi-inputs" bind:value={selectedInput} name="songs">

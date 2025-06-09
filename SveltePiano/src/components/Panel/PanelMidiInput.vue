@@ -7,7 +7,7 @@ PanelTemplate(title="Midi Input")
 </template>
 
 <script>
-import WebMidi from 'webmidi';
+// import WebMidi from 'webmidi';
 import { ref } from 'vue';
 import PanelTemplate from './PanelTemplate.vue';
 

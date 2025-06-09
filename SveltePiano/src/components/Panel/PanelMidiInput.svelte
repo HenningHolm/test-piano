@@ -53,7 +53,6 @@
   function setupMidiListeners(device: any) {
     device.onmidimessage = (message: any) => {
       const [command, note, velocity] = message.data
-      
       if (command === 144 && velocity > 0) { // Note on
         // Send bare MIDI nummer - la Note.ts beregne octave/pitch
         musicEvents.emit('note-on', { midi: note, velocity })

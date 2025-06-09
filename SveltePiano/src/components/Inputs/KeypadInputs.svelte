@@ -36,7 +36,7 @@
       pressedKeys.add(e.key)
       
       // Send kun MIDI - la ThePiano beregne octave/pitch
-      musicEvents.emit('note-on', { midi })
+      musicEvents.emit('note-on', { midi }) // Standard velocity
     }
   }
 

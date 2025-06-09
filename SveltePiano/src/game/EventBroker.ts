@@ -36,7 +36,7 @@ class EventBroker {
 
   emit<T extends EventName>(event: T, data: EventData<T>): void {
     const callbacks = this.listeners.get(event) || []
-    
+    console.log(`Emitting event "${event}" with data:`, data)
     callbacks.forEach(callback => {
       try {
         callback(data)

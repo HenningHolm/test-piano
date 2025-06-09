@@ -1,8 +1,7 @@
 <script lang="ts">
   import { onMount, onDestroy, getContext } from 'svelte'
   import Octave from './TangentOctave.svelte'
-  import piano from '../../game/Piano'
-
+  import soundplayer from '../../game/SoundPlayer'
   import { keysToBePressed } from '../../game/Note'
   import { musicEvents } from '../../game/EventBroker'
   import Engine from '../../game/Engine'
@@ -38,14 +37,14 @@
         Engine.instance?.keysBeingPressed.add(midi)
         Engine.instance?.start()
       }
-      piano.keyDown({ midi, velocity })
+      soundplayer.triggerDown({ midi, velocity })
       octaves[octave - 1]?.pressKey(pitch)
     })
 
     const unsubNoteOff = musicEvents.on('note-off', (e) => {
       const { midi } = e;
         const { octave, pitch } = midiToOctavePitch(midi);
-      piano.keyUp({ midi });
+      soundplayer.triggerUp({ midi });
       octaves[octave - 1]?.releaseKey(pitch);
     })
 

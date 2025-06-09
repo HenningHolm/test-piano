@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte'
-  import Piano from '../../game/Piano'
+  import soundplayer from '../../game/SoundPlayer'
   import PanelTemplate from './PanelTemplate.svelte'
   import Engine from '../../game/Engine'
 
@@ -10,7 +10,7 @@
   let fileContent = $state(null)
 
   onMount(async () => {
-    await Piano.load()
+    await soundplayer.load()
     console.log('loaded!')
     checkPianoLoaded = true
   })
